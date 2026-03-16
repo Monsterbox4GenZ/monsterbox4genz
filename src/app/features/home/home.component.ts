@@ -119,7 +119,7 @@ import { translateGenre } from '../../core/utils/genre-translations';
     <!-- Stats Section -->
     <section class="bg-gray-50 border-t border-b border-gray-200">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+        <div class="grid grid-cols-3 gap-6 text-center">
           <div>
             <div class="text-3xl font-bold text-blue-600">{{ articleService.totalArticles() }}</div>
             <div class="text-sm text-gray-500 mt-1">
@@ -134,12 +134,6 @@ import { translateGenre } from '../../core/utils/genre-translations';
             <div class="text-3xl font-bold text-amber-600">2</div>
             <div class="text-sm text-gray-500 mt-1">
               {{ langService.isVietnamese() ? 'Ngôn ngữ' : 'Languages' }}
-            </div>
-          </div>
-          <div>
-            <div class="text-3xl font-bold text-purple-600">100%</div>
-            <div class="text-sm text-gray-500 mt-1">
-              {{ langService.isVietnamese() ? 'Dịch thuật' : 'Translated' }}
             </div>
           </div>
         </div>
