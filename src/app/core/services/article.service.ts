@@ -23,11 +23,18 @@ export class ArticleService {
     { initialValue: { meta: { totalArticles: 0 }, articles: [] } as ArticlesIndex }
   );
 
-  readonly articles = computed(() =>
-    [...this.indexData().articles].sort((a, b) =>
-      new Date(b.metadata.createdAt).getTime() - new Date(a.metadata.createdAt).getTime()
-    )
-  );
+  readonly articles = computed(() => {
+    const seen = new Set<string>();
+    return this.indexData().articles
+      .filter(a => {
+        if (seen.has(a.id)) return false;
+        seen.add(a.id);
+        return true;
+      })
+      .sort((a, b) =>
+        new Date(b.metadata.createdAt).getTime() - new Date(a.metadata.createdAt).getTime()
+      );
+  });
   readonly totalArticles = computed(() => this.indexData().meta.totalArticles);
 
   private contentCache = new Map<string, Observable<ArticleContent | null>>();
