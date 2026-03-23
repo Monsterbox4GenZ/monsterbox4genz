@@ -10,6 +10,7 @@ import { BreadcrumbsComponent, Breadcrumb } from '../../shared/components/breadc
 import { RelatedArticlesComponent } from './related-articles.component';
 import { Article } from '../../core/models/article.model';
 import { translateGenre } from '../../core/utils/genre-translations';
+import { extractReferences, formatReferencesSection } from '../../core/utils/reference-processor';
 
 @Component({
   selector: 'app-article-detail',
@@ -104,9 +105,12 @@ import { translateGenre } from '../../core/utils/genre-translations';
         }
 
         <!-- Article Content -->
-        <article class="prose prose-lg max-w-none">
+        <article class="prose prose-lg max-w-none" (click)="onContentClick($event)">
           @if (articleContent()) {
             <div [innerHTML]="articleContent()! | markdown | safeHtml"></div>
+            @if (referencesHtml()) {
+              <div [innerHTML]="referencesHtml()! | safeHtml"></div>
+            }
           } @else {
             <div class="text-center py-12">
               <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
@@ -141,11 +145,33 @@ export class ArticleDetailComponent implements OnInit {
   article = signal<Article | undefined>(undefined);
   loadError = signal(false);
 
-  articleContent = computed(() => {
+  private parsedArticle = computed(() => {
     const a = this.article();
     if (!a) return null;
-    return a[this.lang()]?.content ?? null;
+    const lang = this.lang();
+    const content = a[lang]?.content;
+    if (!content) return null;
+
+    const { body, references } = extractReferences(content);
+
+    let refs = references;
+    if (refs.length === 0) {
+      const otherLang = lang === 'vi' ? 'en' : 'vi';
+      const otherContent = a[otherLang]?.content;
+      if (otherContent) {
+        refs = extractReferences(otherContent).references;
+      }
+    }
+
+    const title = lang === 'vi' ? 'Tham khảo' : 'References';
+    return {
+      body,
+      referencesHtml: refs.length > 0 ? formatReferencesSection(refs, title) : null,
+    };
   });
+
+  articleContent = computed(() => this.parsedArticle()?.body ?? null);
+  referencesHtml = computed(() => this.parsedArticle()?.referencesHtml ?? null);
 
   readingTime = computed(() => {
     const a = this.article();
@@ -219,6 +245,27 @@ export class ArticleDetailComponent implements OnInit {
       month: 'long',
       day: 'numeric'
     });
+  }
+
+  onContentClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+    const anchor = target.closest('a.citation-link, a.ref-back-link') as HTMLAnchorElement | null;
+    if (anchor) {
+      event.preventDefault();
+      const href = anchor.getAttribute('href');
+      if (href?.startsWith('#')) {
+        const el = document.getElementById(href.substring(1));
+        if (el) {
+          el.scrollIntoView({ behavior: 'instant' });
+          const highlightEl = (el.id.startsWith('cite-')
+            ? el.closest('p, li, blockquote, td, h1, h2, h3, h4') ?? el
+            : el) as HTMLElement;
+          highlightEl.classList.remove('cite-highlight');
+          void highlightEl.offsetWidth;
+          highlightEl.classList.add('cite-highlight');
+        }
+      }
+    }
   }
 
   difficultyClass(): string {
