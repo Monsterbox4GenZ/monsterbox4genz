@@ -16,6 +16,14 @@ function escapeHtml(text: string): string {
     .replace(/>/g, '&gt;');
 }
 
+function cleanRefText(text: string): string {
+  return text
+    .replace(/\s*\[Online\]/gi, '')
+    .replace(/\s*\[Accessed:\s*[^\]]*\]/gi, '')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+}
+
 /**
  * Splits raw article content into the main body and a parsed reference list.
  * References are detected as consecutive lines matching `[N] ...` at the end
@@ -53,11 +61,11 @@ export function extractReferences(content: string): ExtractedContent {
     if (urlMatch) {
       references.push({
         number,
-        text: urlMatch[1].trim(),
+        text: cleanRefText(urlMatch[1]),
         url: urlMatch[2].trim(),
       });
     } else {
-      references.push({ number, text: rest.trim(), url: null });
+      references.push({ number, text: cleanRefText(rest), url: null });
     }
   }
 
