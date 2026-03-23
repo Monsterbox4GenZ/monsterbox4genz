@@ -1,50 +1,75 @@
-import { Component, inject, computed, OnInit } from '@angular/core';
+import {Component, inject, computed, OnInit, signal} from '@angular/core';
 import { RouterLink, ActivatedRoute } from '@angular/router';
 import { Title, Meta } from '@angular/platform-browser';
 import { ArticleService } from '../../core/services/article.service';
 import { LanguageService } from '../../core/services/language.service';
 import { translateGenre } from '../../core/utils/genre-translations';
+import {ThemeService} from '../../core/services/theme.service';
+import {CommonModule, NgForOf} from '@angular/common';
+import {ArticleCardComponent} from '../article-list/article-card.component';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, CommonModule, ArticleCardComponent],
   template: `
     <!-- Hero Section -->
-    <section class="bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 text-white">
-      <div class="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 py-4 sm:py-8">
-        <div class="text-center">
-          <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <a
-              [routerLink]="['/', lang(), 'articles']"
-              class="inline-flex items-center px-6 py-3 rounded-lg bg-white text-blue-700 font-semibold
-                      hover:bg-blue-50 transition-colors shadow-lg"
-            >
-              {{ langService.t('common.browseAll') }}
-              <svg class="ml-2 w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M17 8l4 4m0 0l-4 4m4-4H3"
-                />
-              </svg>
-            </a>
-            <a
-              [routerLink]="['/', lang(), 'search']"
-              class="inline-flex items-center px-6 py-3 rounded-lg bg-white/10 text-white font-semibold
-                      hover:bg-white/20 transition-colors border border-white/20"
-            >
-              {{ langService.t('nav.search') }}
-            </a>
-          </div>
-          <p class="mt-6 text-blue-200 text-sm">
-            {{ articleService.totalArticles() }} {{ langService.t('common.totalArticles') }}
-          </p>
-        </div>
-      </div>
-    </section>
+    <div class="min-h-screen
+    bg-gradient-to-br from-blue-100 via-indigo-100 to-purple-100
+    dark:from-blue-900 dark:via-purple-900 dark:to-indigo-900
+    transition-colors duration-500">
 
+      <!-- HERO -->
+      <section class="relative text-white">
+
+        <!-- background image -->
+        <div
+          class="absolute inset-0 bg-cover bg-center"
+          style="background-image: url('https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=1600');"
+        ></div>
+
+        <!-- overlay -->
+        <div class="absolute inset-0
+            bg-gradient-to-br from-blue-600/80 via-blue-700/80 to-indigo-800/80
+            dark:from-blue-900/90 dark:via-purple-900/90 dark:to-indigo-900/90
+            transition-colors duration-500"></div>
+
+        <!-- content -->
+        <div class="relative max-w-5xl mx-auto px-4 py-25 text-center">
+
+          <!-- stats -->
+          <div class="grid grid-cols-3 gap-4 mb-3 mt-12">
+
+            <div class="bg-white/10 backdrop-blur-md rounded-xl py-3">
+              <div class="text-xl font-bold">
+                {{ articleService.totalArticles() }}
+              </div>
+              <div class="text-xs text-blue-200">
+                {{ langService.t('common.totalArticles') }}
+              </div>
+            </div>
+
+            <div class="bg-white/10 backdrop-blur-md rounded-xl py-3">
+              <div class="text-xl font-bold">
+                {{ genreCount() }}
+              </div>
+              <div class="text-xs text-blue-200">
+                {{ langService.t('article.genre') }}
+              </div>
+            </div>
+
+            <div class="bg-white/10 backdrop-blur-md rounded-xl py-3">
+              <div class="text-xl font-bold">2</div>
+              <div class="text-xs text-blue-200">
+                {{ langService.isVietnamese() ? 'Ngôn ngữ' : 'Languages' }}
+              </div>
+            </div>
+
+          </div>
+
+
+        </div>
+      </section>
     <!-- Featured Articles -->
     <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
       <div class="flex items-center justify-between mb-8">
@@ -69,76 +94,13 @@ import { translateGenre } from '../../core/utils/genre-translations';
 
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         @for (article of featuredArticles(); track article.id) {
-          <a
-            [routerLink]="['/', lang(), 'article', article.id]"
-            class="group block bg-white rounded-xl shadow-sm border border-gray-200
-                    hover:shadow-md hover:border-blue-200 transition-all duration-200"
-          >
-            <div class="p-6">
-              <div class="flex items-center gap-2 mb-3">
-                <span
-                  class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                             bg-blue-100 text-blue-800"
-                >
-                  {{ translateGenre(article.metadata.genres, lang()) }}
-                </span>
-                <span class="text-xs text-gray-400">
-                  {{ formatDate(article.metadata.createdAt) }}
-                </span>
-              </div>
-
-              <h3
-                class="text-lg font-semibold text-gray-900 group-hover:text-blue-600
-                         transition-colors mb-2 line-clamp-2"
-              >
-                {{ article[lang()].title }}
-              </h3>
-
-              <p class="text-gray-600 text-sm line-clamp-3 mb-4">
-                {{ article[lang()].description }}
-              </p>
-
-              <div class="flex items-center justify-between">
-                <div class="flex gap-1.5">
-                  @for (tag of article.metadata.tags.slice(0, 2); track tag) {
-                    <span class="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
-                      {{ tag }}
-                    </span>
-                  }
-                </div>
-                <span class="text-blue-600 text-sm font-medium group-hover:underline">
-                  {{ langService.t('common.readMore') }} →
-                </span>
-              </div>
-            </div>
-          </a>
+          <app-article-card [article]="article" />
         }
       </div>
     </section>
 
-    <!-- Stats Section -->
-    <section class="bg-gray-50 border-t border-b border-gray-200">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div class="grid grid-cols-3 gap-6 text-center">
-          <div>
-            <div class="text-3xl font-bold text-blue-600">{{ articleService.totalArticles() }}</div>
-            <div class="text-sm text-gray-500 mt-1">
-              {{ langService.t('common.totalArticles') }}
-            </div>
-          </div>
-          <div>
-            <div class="text-3xl font-bold text-green-600">{{ genreCount() }}</div>
-            <div class="text-sm text-gray-500 mt-1">{{ langService.t('article.genre') }}</div>
-          </div>
-          <div>
-            <div class="text-3xl font-bold text-amber-600">2</div>
-            <div class="text-sm text-gray-500 mt-1">
-              {{ langService.isVietnamese() ? 'Ngôn ngữ' : 'Languages' }}
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
+
+    </div>
   `,
 })
 export class HomeComponent implements OnInit {
@@ -148,13 +110,20 @@ export class HomeComponent implements OnInit {
   private title = inject(Title);
   private meta = inject(Meta);
 
+  themeService = inject(ThemeService);
+  isDark = signal(false);
+
   lang = this.langService.currentLang;
 
-  featuredArticles = computed(() => this.articleService.articles().slice(0, 6));
+  featuredArticles = computed(() => this.articleService.articles().slice(0, 12));
 
   genreCount = computed(() => this.articleService.getUniqueGenres()().length);
 
   ngOnInit(): void {
+    // Đồng bộ class dark từ localStorage
+    this.themeService.initTheme();
+    this.isDark.set(this.themeService.isDark());
+
     this.route.paramMap.subscribe((params) => {
       const lang = params.get('lang');
       if (lang) this.langService.setLanguageFromRoute(lang);
@@ -165,6 +134,11 @@ export class HomeComponent implements OnInit {
       name: 'description',
       content: 'Bilingual Vietnamese-English article platform',
     });
+  }
+
+  toggleTheme(): void {
+    this.themeService.toggleTheme();
+    this.isDark.set(this.themeService.isDark());
   }
 
   readonly translateGenre = translateGenre;
