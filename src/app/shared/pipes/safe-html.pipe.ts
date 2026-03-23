@@ -13,7 +13,7 @@ export class SafeHtmlPipe implements PipeTransform {
     if (!value) return '';
     const clean = DOMPurify.sanitize(value, {
       ADD_TAGS: ['iframe'],
-      ADD_ATTR: ['allow', 'allowfullscreen', 'frameborder', 'scrolling']
+      ADD_ATTR: ['allow', 'allowfullscreen', 'frameborder', 'scrolling', 'target', 'rel']
     });
     return this.sanitizer.bypassSecurityTrustHtml(clean);
   }
