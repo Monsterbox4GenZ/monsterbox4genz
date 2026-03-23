@@ -90,6 +90,64 @@
   @apply border-gray-300 my-8;
 }
 
+/* Inline citation links [1], [2], etc. */
+.prose .citation-link {
+  @apply text-blue-600 no-underline font-medium;
+  cursor: pointer;
+  font-size: 0.75em;
+}
+
+.prose .citation-link:hover {
+  @apply underline text-blue-800;
+}
+
+/* References section at end of article */
+.references-section {
+  @apply mt-12 pt-8 border-t-2 border-gray-200;
+}
+
+.references-section h3 {
+  @apply text-xl font-bold mb-4 text-gray-800;
+}
+
+.reference-item {
+  @apply py-2 text-sm leading-relaxed text-gray-600;
+  scroll-margin-top: 5rem;
+}
+
+.reference-item .ref-back-link {
+  @apply text-blue-600 font-semibold no-underline;
+}
+
+.reference-item .ref-back-link:hover {
+  @apply text-blue-800;
+}
+
+.reference-item a {
+  @apply text-blue-600 no-underline;
+  word-break: break-all;
+}
+
+.reference-item a:hover {
+  @apply text-blue-800 underline;
+}
+
+/* Scroll target offset for inline citations when navigating back from references */
+.prose sup[id^="cite-"] {
+  scroll-margin-top: 5rem;
+}
+
+/* Flash highlight when jumping to a citation or reference */
+@keyframes cite-flash {
+  0%   { background-color: #FBBF24; }
+  100% { background-color: transparent; }
+}
+
+.cite-highlight {
+  animation: cite-flash 1.5s ease-out;
+  border-radius: 2px;
+}
+
 /* Line clamp utilities */
 .line-clamp-2 {
   display: -webkit-box;
