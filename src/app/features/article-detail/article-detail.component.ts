@@ -2,24 +2,42 @@ import { Component, inject, computed, OnInit, signal, DestroyRef, effect } from 
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Title, Meta } from '@angular/platform-browser';
+import { NgClass } from '@angular/common';
 import { ArticleService } from '../../core/services/article.service';
 import { LanguageService } from '../../core/services/language.service';
+import { UserPreferencesService } from '../../core/services/user-preferences.service';
 import { MarkdownPipe } from '../../shared/pipes/markdown.pipe';
 import { SafeHtmlPipe } from '../../shared/pipes/safe-html.pipe';
+import { FormatContentPipe } from '../../shared/pipes/format-content-pipe';
 import { BreadcrumbsComponent, Breadcrumb } from '../../shared/components/breadcrumbs/breadcrumbs.component';
 import { RelatedArticlesComponent } from './related-articles.component';
 import { Article } from '../../core/models/article.model';
 import { translateGenre } from '../../core/utils/genre-translations';
 import { extractReferences, formatReferencesSection } from '../../core/utils/reference-processor';
 
+// @ts-ignore
 @Component({
   selector: 'app-article-detail',
   standalone: true,
-  imports: [RouterLink, MarkdownPipe, SafeHtmlPipe, BreadcrumbsComponent, RelatedArticlesComponent],
+  imports: [
+    RouterLink,
+    NgClass,
+    MarkdownPipe,
+    SafeHtmlPipe,
+    FormatContentPipe,
+    BreadcrumbsComponent,
+    RelatedArticlesComponent,
+  ],
   template: `
     <app-breadcrumbs [items]="breadcrumbs()" />
 
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="mx-auto px-4 sm:px-6 lg:px-8 py-36 transition-all duration-500"
+         [ngClass]="{
+           'max-w-3xl':          prefs.contentWidth() === 'narrow',
+           'max-w-5xl':          prefs.contentWidth() === 'medium',
+           'max-w-screen-2xl':   prefs.contentWidth() === 'wide'
+         }">
+
       @if (loadError()) {
         <!-- Error state -->
         <div class="text-center py-16">
@@ -27,12 +45,15 @@ import { extractReferences, formatReferencesSection } from '../../core/utils/ref
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                   d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
           </svg>
-          <p class="text-gray-500 text-lg">{{ langService.isVietnamese() ? 'Không tìm thấy bài viết.' : 'Article not found.' }}</p>
+          <p class="text-gray-500 text-lg">
+            {{ langService.isVietnamese() ? 'Không tìm thấy bài viết.' : 'Article not found.' }}
+          </p>
           <a [routerLink]="['/', lang(), 'articles']"
              class="mt-4 inline-block text-blue-600 hover:underline">
             ← {{ langService.t('article.backToList') }}
           </a>
         </div>
+
       } @else if (article()) {
         <!-- Article Header -->
         <header class="mb-8">
@@ -43,16 +64,16 @@ import { extractReferences, formatReferencesSection } from '../../core/utils/ref
             </a>
           </div>
 
-          <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-4 leading-tight">
+          <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4 leading-tight transition-colors">
             {{ article()![lang()].title }}
           </h1>
 
-          <p class="text-lg text-gray-600 mb-6">
+          <p class="text-lg text-gray-600 dark:text-gray-400 mb-6 transition-colors">
             {{ article()![lang()].description }}
           </p>
 
           <!-- Meta Info -->
-          <div class="flex flex-wrap items-center gap-4 text-sm text-gray-500 pb-6 border-b border-gray-200">
+          <div class="flex flex-wrap items-center gap-4 text-sm text-gray-500 dark:text-gray-400 pb-6 border-b border-gray-200 dark:border-gray-800">
             @if (article()!.metadata.creators.length > 0) {
               <div class="flex items-center gap-1.5">
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -86,41 +107,59 @@ import { extractReferences, formatReferencesSection } from '../../core/utils/ref
 
             @if (article()!.metadata.difficultyLevel !== 'Không có thông tin') {
               <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium"
-                    [class]="difficultyClass()">
+                    [ngClass]="difficultyClass()">
                 {{ article()!.metadata.difficultyLevel }}
               </span>
             }
           </div>
         </header>
 
-        <!-- Tags -->
-        @if (article()!.metadata.tags.length > 0) {
-          <div class="flex flex-wrap gap-2 mb-8">
-            @for (tag of article()!.metadata.tags; track tag) {
-              <span class="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">
-                {{ tag }}
-              </span>
-            }
-          </div>
-        }
+        <!-- Font / size preferences wrapper -->
+        <div [ngClass]="{
+               'text-sm':   prefs.fontSize() === 'sm',
+               'text-base': prefs.fontSize() === 'base',
+               'text-lg':   prefs.fontSize() === 'lg',
+               'text-xl':   prefs.fontSize() === 'xl',
+               'font-sans':  prefs.fontStyle() === 'sans',
+               'font-serif': prefs.fontStyle() === 'serif',
+               'font-mono':  prefs.fontStyle() === 'mono'
+             }"
+             class="transition-all duration-300">
 
-        <!-- Article Content -->
-        <article class="prose prose-lg max-w-none" (click)="onContentClick($event)">
-          @if (articleContent()) {
-            <div [innerHTML]="articleContent()! | markdown | safeHtml"></div>
-            @if (referencesHtml()) {
-              <div [innerHTML]="referencesHtml()! | safeHtml"></div>
-            }
-          } @else {
-            <div class="text-center py-12">
-              <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-              <p class="text-gray-500">{{ langService.t('common.loading') }}</p>
+          <!-- Tags -->
+          @if (article()!.metadata.tags.length > 0) {
+            <div class="flex flex-wrap gap-2 mb-8">
+              @for (tag of article()!.metadata.tags; track tag) {
+                <a [routerLink]="['/', lang(), 'search']" [queryParams]="{ q: tag }"
+                   class="text-xs bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300
+                          px-3 py-1 rounded-full hover:bg-blue-100 transition">
+                  #{{ tag }}
+                </a>
+              }
             </div>
           }
-        </article>
+
+          <!-- Article Content -->
+          <article class="prose prose-lg dark:prose-invert max-w-none" (click)="onContentClick($event)">
+            @if (articleContent()) {
+              <div [innerHTML]="articleContent()! | formatContent | markdown | safeHtml"></div>
+              @if (referencesHtml()) {
+                <div [innerHTML]="referencesHtml()! | safeHtml"></div>
+              }
+            } @else {
+              <div class="text-center py-12">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                <p class="text-gray-500">{{ langService.t('common.loading') }}</p>
+              </div>
+            }
+          </article>
+        </div>
 
         <!-- Related Articles -->
-        <app-related-articles [articles]="relatedArticles()" />
+        <div class="mt-16 border-t border-gray-100 dark:border-gray-800 pt-10">
+          <app-related-articles [articles]="relatedArticles()" />
+        </div>
+
       } @else {
         <!-- Loading State -->
         <div class="text-center py-16">
@@ -139,12 +178,15 @@ export class ArticleDetailComponent implements OnInit {
   private metaService = inject(Meta);
   private destroyRef = inject(DestroyRef);
 
+  public prefs = inject(UserPreferencesService);
+
   lang = this.langService.currentLang;
 
-  // Plain signals — updated via direct subscriptions (no injection context issues)
   article = signal<Article | undefined>(undefined);
   loadError = signal(false);
 
+  // Parse body and references from current-language content,
+  // falling back to the other language for references if none found.
   private parsedArticle = computed(() => {
     const a = this.article();
     if (!a) return null;
@@ -170,19 +212,17 @@ export class ArticleDetailComponent implements OnInit {
     };
   });
 
-  articleContent = computed(() => this.parsedArticle()?.body ?? null);
-  referencesHtml = computed(() => this.parsedArticle()?.referencesHtml ?? null);
+  articleContent  = computed(() => this.parsedArticle()?.body ?? null);
+  referencesHtml  = computed(() => this.parsedArticle()?.referencesHtml ?? null);
 
   readingTime = computed(() => {
     const a = this.article();
-    if (!a) return 0;
-    return Math.max(1, Math.ceil((a.metadata.length || 0) / 1500));
+    return a ? Math.max(1, Math.ceil((a.metadata.length || 0) / 1500)) : 0;
   });
 
   relatedArticles = computed(() => {
     const a = this.article();
-    if (!a) return [];
-    return this.articleService.getRelatedArticles(a.id, 6)();
+    return a ? this.articleService.getRelatedArticles(a.id, 6)() : [];
   });
 
   breadcrumbs = computed<Breadcrumb[]>(() => {
@@ -199,8 +239,8 @@ export class ArticleDetailComponent implements OnInit {
       if (a) {
         const lang = this.lang();
         this.titleService.setTitle(`${a[lang].title} | Monster Box`);
-        this.metaService.updateTag({ name: 'description', content: a[lang].description });
-        this.metaService.updateTag({ property: 'og:title', content: a[lang].title });
+        this.metaService.updateTag({ name: 'description',      content: a[lang].description });
+        this.metaService.updateTag({ property: 'og:title',       content: a[lang].title });
         this.metaService.updateTag({ property: 'og:description', content: a[lang].description });
       }
     });
@@ -215,7 +255,6 @@ export class ArticleDetailComponent implements OnInit {
 
         const slug = params.get('slug');
         if (slug) {
-          // Reset state when navigating to a new article
           this.article.set(undefined);
           this.loadError.set(false);
           window.scrollTo({ top: 0, behavior: 'instant' });
@@ -223,13 +262,7 @@ export class ArticleDetailComponent implements OnInit {
           this.articleService.getArticle$(slug)
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe({
-              next: (art) => {
-                if (art) {
-                  this.article.set(art);
-                } else {
-                  this.loadError.set(true);
-                }
-              },
+              next: (art) => art ? this.article.set(art) : this.loadError.set(true),
               error: () => this.loadError.set(true)
             });
         }
@@ -241,12 +274,11 @@ export class ArticleDetailComponent implements OnInit {
   formatDate(dateStr: string): string {
     const date = new Date(dateStr);
     return date.toLocaleDateString(this.lang() === 'vi' ? 'vi-VN' : 'en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+      year: 'numeric', month: 'long', day: 'numeric'
     });
   }
 
+  /** Scroll to citation/reference anchor and briefly highlight it. */
   onContentClick(event: MouseEvent): void {
     const target = event.target as HTMLElement;
     const anchor = target.closest('a.citation-link, a.ref-back-link') as HTMLAnchorElement | null;
@@ -261,7 +293,7 @@ export class ArticleDetailComponent implements OnInit {
             ? el.closest('p, li, blockquote, td, h1, h2, h3, h4') ?? el
             : el) as HTMLElement;
           highlightEl.classList.remove('cite-highlight');
-          void highlightEl.offsetWidth;
+          void highlightEl.offsetWidth;       // force reflow
           highlightEl.classList.add('cite-highlight');
         }
       }
@@ -272,8 +304,9 @@ export class ArticleDetailComponent implements OnInit {
     const a = this.article();
     if (!a) return '';
     const level = a.metadata.difficultyLevel;
-    if (level.includes('Cơ bản') || level.includes('Basic')) return 'bg-green-100 text-green-800';
-    if (level.includes('Nâng cao') || level.includes('Chuyên sâu') || level.includes('Advanced')) return 'bg-red-100 text-red-800';
+    if (level.includes('Cơ bản') || level.includes('Basic'))   return 'bg-green-100 text-green-800';
+    if (level.includes('Nâng cao') || level.includes('Chuyên sâu') || level.includes('Advanced'))
+      return 'bg-red-100   text-red-800';
     return 'bg-amber-100 text-amber-800';
   }
 }
