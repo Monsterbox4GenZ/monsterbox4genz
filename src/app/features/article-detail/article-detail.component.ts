@@ -25,12 +25,9 @@ import { extractReferences, formatReferencesSection } from '../../core/utils/ref
     MarkdownPipe,
     SafeHtmlPipe,
     FormatContentPipe,
-    BreadcrumbsComponent,
     RelatedArticlesComponent,
   ],
   template: `
-    <app-breadcrumbs [items]="breadcrumbs()" />
-
     <div class="mx-auto px-4 sm:px-6 lg:px-8 py-36 transition-all duration-500"
          [ngClass]="{
            'max-w-3xl':          prefs.contentWidth() === 'narrow',
@@ -156,7 +153,7 @@ import { extractReferences, formatReferencesSection } from '../../core/utils/ref
         </div>
 
         <!-- Related Articles -->
-        <div class="mt-16 border-t border-gray-100 dark:border-gray-800 pt-10">
+        <div class="border-gray-100 dark:border-gray-800 pt-3">
           <app-related-articles [articles]="relatedArticles()" />
         </div>
 

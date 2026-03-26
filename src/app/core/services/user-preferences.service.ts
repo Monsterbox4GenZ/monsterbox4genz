@@ -9,17 +9,17 @@ export class UserPreferencesService {
   fontSize = signal<FontSize>('base');
   fontStyle = signal<FontStyle>('sans');
   contentWidth = signal<ContentWidth>('medium');
-
   isDark = signal<boolean>(false);
 
   constructor() {
-    // Load from localStorage
-    const storedTheme = localStorage.getItem('color-theme');
-    if (storedTheme === 'dark') {
-      this.isDark.set(true);
-      document.documentElement.classList.add('dark');
-    }
+    // Dark mode — apply class to <html> immediately on load
+    const savedTheme = localStorage.getItem('color-theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const dark = savedTheme === 'dark' || (!savedTheme && prefersDark);
+    this.isDark.set(dark);
+    document.documentElement.classList.toggle('dark', dark);
 
+    // Other preferences
     const storedFontSize = localStorage.getItem('font-size') as FontSize;
     if (storedFontSize) this.fontSize.set(storedFontSize);
 
@@ -28,6 +28,13 @@ export class UserPreferencesService {
 
     const storedWidth = localStorage.getItem('content-width') as ContentWidth;
     if (storedWidth) this.contentWidth.set(storedWidth);
+  }
+
+  toggleTheme() {
+    const dark = !this.isDark();
+    this.isDark.set(dark);
+    document.documentElement.classList.toggle('dark', dark);
+    localStorage.setItem('color-theme', dark ? 'dark' : 'light');
   }
 
   setFontSize(size: FontSize) {
@@ -43,12 +50,5 @@ export class UserPreferencesService {
   setContentWidth(width: ContentWidth) {
     this.contentWidth.set(width);
     localStorage.setItem('content-width', width);
-  }
-
-  toggleTheme() {
-    const dark = !this.isDark();
-    this.isDark.set(dark);
-    document.documentElement.classList.toggle('dark', dark);
-    localStorage.setItem('color-theme', dark ? 'dark' : 'light');
   }
 }

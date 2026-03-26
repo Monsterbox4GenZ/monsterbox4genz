@@ -49,8 +49,9 @@ import {
         <div class="flex items-center gap-2 sm:gap-3">
           <app-language-toggle />
 
-          <button (click)="toggleTheme()" class="p-2 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md hover:scale-105 active:scale-95 transition-all">
-            @if (isDark()) {
+          <!-- Dark mode toggle — đọc/ghi hoàn toàn qua prefs -->
+          <button (click)="prefs.toggleTheme()" class="p-2 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md hover:scale-105 active:scale-95 transition-all">
+            @if (prefs.isDark()) {
               <svg class="w-5 h-5 text-yellow-300" fill="currentColor" viewBox="0 0 20 20"><path d="M10 3a1 1 0 011 1v1a1 1 0 11-2 0V4a1 1 0 011-1zm4 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
             } @else {
               <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8 8 0 1010.586 10.586z"/></svg>
@@ -139,7 +140,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
   prefs = inject(UserPreferencesService);
 
   mobileMenuOpen = signal(false);
-  isDark = signal(false);
   settingOpen = signal(false);
   lang = this.langService.currentLang;
 
@@ -161,16 +161,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
     { id: 'medium', label: 'Vừa', icon: 'M4 6h16M4 12h16M4 18h16' },
     { id: 'wide', label: 'Rộng', icon: 'M2 6h20M2 12h20M2 18h20' }
   ];
-
-  constructor() {
-    const savedTheme = localStorage.getItem('color-theme');
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-    if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
-      document.documentElement.classList.add('dark');
-      this.isDark.set(true);
-    }
-  }
 
   ngOnInit() {
     window.addEventListener('scroll', this.handleScroll);
@@ -199,12 +189,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
       links.classList.remove('opacity-0', 'pointer-events-none');
     }
   };
-
-  toggleTheme() {
-    const isDark = document.documentElement.classList.toggle('dark');
-    this.isDark.set(isDark);
-    localStorage.setItem('color-theme', isDark ? 'dark' : 'light');
-  }
 
   toggleSetting() {
     this.settingOpen.update(v => !v);

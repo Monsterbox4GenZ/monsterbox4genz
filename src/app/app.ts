@@ -63,6 +63,10 @@ export class App {
   themeService = inject(ThemeService);
   particlesId = 'tsparticles';
 
+  toggleDarkMode() {
+    document.documentElement.classList.toggle('dark');
+  }
+
   // Cấu hình chi tiết cho hiệu ứng mạng lưới màu tím (Plexus)
   // particlesOptions: ISourceOptions = {
   //   fpsLimit: 120,
