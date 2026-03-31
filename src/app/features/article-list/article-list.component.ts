@@ -10,49 +10,62 @@ import { BreadcrumbsComponent, Breadcrumb } from '../../shared/components/breadc
 @Component({
   selector: 'app-article-list',
   standalone: true,
-  imports: [ArticleCardComponent, BreadcrumbsComponent, FormsModule],
+  imports: [ArticleCardComponent, FormsModule],
   template: `
-    <app-breadcrumbs [items]="breadcrumbs()" />
+    <div class="min-h-screen
+     bg-gradient-to-br from-blue-100 via-indigo-100 to-purple-100
+     dark:from-gray-900 dark:via-gray-900 dark:to-gray-800">
 
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <!-- Header & Filters -->
-      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
-        <div>
-          <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">
-            {{ langService.t('common.allArticles') }}
-          </h1>
-          <p class="text-gray-500 mt-1">
-            {{ filteredArticles().length }} {{ langService.t('common.totalArticles') }}
-          </p>
-        </div>
+<!--      <app-breadcrumbs [items]="breadcrumbs()" />-->
 
-        <!-- Filter controls -->
-        <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-          <input
-            type="text"
-            [placeholder]="langService.t('common.search')"
-            [ngModel]="searchQuery()"
-            (ngModelChange)="onSearchChange($event)"
-            class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2
-                   focus:ring-blue-500 focus:border-blue-500 w-full sm:w-64"
-          />
-          <select
-            [ngModel]="selectedGenre()"
-            (ngModelChange)="onGenreChange($event)"
-            class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2
-                   focus:ring-blue-500 focus:border-blue-500 bg-white cursor-pointer"
-          >
-            <option value="">{{ langService.t('article.genre') }}: {{ langService.isVietnamese() ? 'Tất cả' : 'All' }}</option>
-            @for (genre of genres(); track genre) {
-              <option [value]="genre">{{ genre }}</option>
-            }
-          </select>
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- Header & Filters -->
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8 mt-22">
+          <div>
+            <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
+              {{ langService.t('common.allArticles') }}
+            </h1>
+<!--            <p class="text-gray-500 dark:text-gray-400 mt-1">-->
+<!--              {{ filteredArticles().length }} {{ langService.t('common.totalArticles') }}-->
+<!--            </p>-->
+          </div>
+
+          <!-- Filter controls -->
+          <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+            <input
+              type="text"
+              [placeholder]="langService.t('common.search')"
+              [ngModel]="searchQuery()"
+              (ngModelChange)="onSearchChange($event)"
+              class="px-4 py-2 border border-gray-300 rounded-lg text-sm
+                 bg-white/80 backdrop-blur
+                 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-full sm:w-64"
+            />
+
+            <select
+              [ngModel]="selectedGenre()"
+              (ngModelChange)="onGenreChange($event)"
+              class="px-4 py-2 border border-gray-300 rounded-lg text-sm
+                 bg-white/80 backdrop-blur
+                 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer"
+            >
+              <option value="">
+                {{ langService.t('article.genre') }}:
+                {{ langService.isVietnamese() ? 'Tất cả' : 'All' }}
+              </option>
+
+              @for (genre of genres(); track genre) {
+                <option [value]="genre">{{ genre }}</option>
+              }
+            </select>
+          </div>
         </div>
-      </div>
 
       <!-- Articles Grid -->
       @if (paginatedArticles().length > 0) {
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+
           @for (article of paginatedArticles(); track article.id) {
             <app-article-card [article]="article" />
           }

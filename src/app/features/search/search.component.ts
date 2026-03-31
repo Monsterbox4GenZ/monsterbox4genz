@@ -7,15 +7,21 @@ import { LanguageService } from '../../core/services/language.service';
 import { ArticleCardComponent } from '../article-list/article-card.component';
 import { BreadcrumbsComponent, Breadcrumb } from '../../shared/components/breadcrumbs/breadcrumbs.component';
 import { GENRE_VI_TO_EN } from '../../core/utils/genre-translations';
+import {NgForOf} from '@angular/common';
 
 @Component({
   selector: 'app-search',
   standalone: true,
-  imports: [FormsModule, ArticleCardComponent, BreadcrumbsComponent],
+  imports: [FormsModule, ArticleCardComponent],
   template: `
-    <app-breadcrumbs [items]="breadcrumbs()" />
+    <div class="min-h-screen
+     bg-gradient-to-br from-blue-100 via-indigo-100 to-purple-100
+     dark:from-gray-900 dark:via-gray-900 dark:to-gray-800">
 
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <!-- giữ nguyên code của bạn -->
+<!--      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-22">-->
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-30">
       <!-- Search Header -->
       <div class="max-w-2xl mx-auto mb-8">
         <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 text-center mb-6">
@@ -66,8 +72,8 @@ import { GENRE_VI_TO_EN } from '../../core/utils/genre-translations';
               <button
                 (click)="selectGenre(genre.vi)"
                 [class]="activeGenre() === genre.vi
-                  ? 'bg-blue-600 text-white border-blue-600'
-                  : 'bg-gray-100 text-gray-700 border-gray-200 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-300'"
+    ? 'bg-blue-600 text-white border-blue-600'
+    : 'bg-gray-100 text-gray-700 border-gray-200 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-300'"
                 class="text-xs px-3 py-1.5 rounded-full border transition-colors cursor-pointer font-medium">
                 {{ lang() === 'en' ? genre.en : genre.vi }}
               </button>
@@ -144,6 +150,9 @@ import { GENRE_VI_TO_EN } from '../../core/utils/genre-translations';
         </div>
       }
     </div>
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-22">
+      </div>
+    </div>
   `
 })
 export class SearchComponent implements OnInit {
@@ -157,8 +166,33 @@ export class SearchComponent implements OnInit {
   displayCount = signal(12);
   activeGenre = signal('');   // always stores Vietnamese genre value
   activeAuthor = signal('');
+  activeTag = signal('');
 
   lang = this.langService.currentLang;
+
+  ngOnInit(): void {
+    this.route.paramMap.subscribe(params => {
+      const lang = params.get('lang');
+      if (lang) this.langService.setLanguageFromRoute(lang);
+    });
+
+    this.route.queryParamMap.subscribe(params => {
+      const q = params.get('q');
+      const tag = params.get('tag'); // tag từ URL, thực chất là genre
+
+      if (q) this.query.set(q);
+
+      if (tag) {
+        // Chuyển tag này thành activeGenre
+        this.activeGenre.set(tag);
+        this.activeAuthor.set('');
+        this.activeTag.set('');
+        this.query.set('');
+      }
+    });
+
+    this.titleService.setTitle(`${this.langService.t('nav.search')} | Monster Box`);
+  }
 
   breadcrumbs = computed<Breadcrumb[]>(() => [
     { label: this.langService.t('nav.search') }
@@ -192,46 +226,42 @@ export class SearchComponent implements OnInit {
 
   // Human-readable label shown in the results summary line
   activeLabel = computed(() => {
-    const genre = this.activeGenre();
-    if (genre) {
+    if (this.activeTag()) return this.activeTag();
+
+    if (this.activeGenre()) {
+      const genre = this.activeGenre();
       return this.lang() === 'en' ? (GENRE_VI_TO_EN[genre] ?? genre) : genre;
     }
-    const author = this.activeAuthor();
-    if (author) return author;
+
+    if (this.activeAuthor()) return this.activeAuthor();
+
     return this.query();
   });
 
   results = computed(() => {
     const genre = this.activeGenre();
     const author = this.activeAuthor();
+    const tag = this.activeTag();
     const q = this.query().toLowerCase().trim();
-
-    // Genre filter: exact match against metadata.genres (always Vietnamese)
-    if (genre) {
-      return this.articleService.articles().filter(article =>
-        article.metadata.genres.split(',').map(g => g.trim()).includes(genre)
-      );
-    }
-
-    // Author filter: exact match against metadata.creators
-    if (author) {
-      return this.articleService.articles().filter(article =>
-        article.metadata.creators.some(c => c.trim() === author)
-      );
-    }
-
-    // Free-text query: match title, description, excerpt, metadata tags
-    if (!q) return [];
     const lang = this.lang();
+
     return this.articleService.articles().filter(article => {
       const content = article[lang];
-      const isTagMatch = article.metadata.tags.some(tag => tag.toLowerCase().includes(q));
-      return (
+
+      const matchGenre = !this.activeGenre() ||
+        article.metadata.genres.split(',').map(g => g.trim()).includes(this.activeGenre());
+      const matchAuthor = !this.activeAuthor() ||
+        article.metadata.creators.some(c => c.trim() === this.activeAuthor());
+      const matchTag = !this.activeTag() ||
+        article.metadata.tags.some(t => t.toLowerCase() === this.activeTag().toLowerCase());
+
+      const matchQuery = !q ||
         content.title.toLowerCase().includes(q) ||
         content.description.toLowerCase().includes(q) ||
         content.excerpt.toLowerCase().includes(q) ||
-        isTagMatch
-      );
+        article.metadata.tags.some(t => t.toLowerCase().includes(q));
+
+      return matchGenre && matchAuthor && matchTag && matchQuery;
     });
   });
 
@@ -243,19 +273,6 @@ export class SearchComponent implements OnInit {
     this.results().length > this.displayCount()
   );
 
-  ngOnInit(): void {
-    this.route.paramMap.subscribe(params => {
-      const lang = params.get('lang');
-      if (lang) this.langService.setLanguageFromRoute(lang);
-    });
-
-    this.route.queryParamMap.subscribe(params => {
-      const q = params.get('q');
-      if (q) this.query.set(q);
-    });
-
-    this.titleService.setTitle(`${this.langService.t('nav.search')} | Monster Box`);
-  }
 
   onQueryChange(value: string): void {
     this.query.set(value);
@@ -271,19 +288,23 @@ export class SearchComponent implements OnInit {
   selectGenre(viGenre: string): void {
     const isSame = this.activeGenre() === viGenre;
     this.activeGenre.set(isSame ? '' : viGenre);
-    this.activeAuthor.set('');
-    this.query.set('');
     this.displayCount.set(12);
-    this.router.navigate([], { queryParams: {}, queryParamsHandling: 'merge' });
+    // giữ nguyên activeAuthor & activeTag
   }
 
   selectAuthor(author: string): void {
     const isSame = this.activeAuthor() === author;
     this.activeAuthor.set(isSame ? '' : author);
-    this.activeGenre.set('');
+    this.displayCount.set(12);
+    // giữ nguyên activeGenre & activeTag
+  }
+
+// Chọn tag (khác với genre)
+  onTagClick(tag: string): void {
+    this.activeTag.set(tag);
     this.query.set('');
     this.displayCount.set(12);
-    this.router.navigate([], { queryParams: {}, queryParamsHandling: 'merge' });
+    // giữ nguyên activeGenre & activeAuthor
   }
 
   clearSearch(): void {
