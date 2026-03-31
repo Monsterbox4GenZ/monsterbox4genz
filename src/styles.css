@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Tell Tailwind v4 to use class-based dark mode instead of prefers-color-scheme */
+@variant dark (&:where(.dark, .dark *));
+
 /* Tell Tailwind v4 to scan Angular component templates */
 @source "../src/**/*.ts";
 @source "../src/**/*.html";
@@ -202,9 +205,6 @@ body {
 .dark .prose blockquote {
   @apply text-gray-300 border-blue-400;
 }
-
-.bg-white { @apply bg-white dark:bg-gray-900; }
-.text-black { @apply text-black dark:text-white; }
 
 h1, .article-title {
   @apply text-3xl sm:text-4xl font-bold mb-4 leading-tight transition-colors;

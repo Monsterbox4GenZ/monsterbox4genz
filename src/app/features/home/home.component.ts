@@ -1,11 +1,10 @@
-import {Component, inject, computed, OnInit, signal} from '@angular/core';
+import {Component, inject, computed, OnInit} from '@angular/core';
 import { RouterLink, ActivatedRoute } from '@angular/router';
 import { Title, Meta } from '@angular/platform-browser';
 import { ArticleService } from '../../core/services/article.service';
 import { LanguageService } from '../../core/services/language.service';
 import { translateGenre } from '../../core/utils/genre-translations';
-import {ThemeService} from '../../core/services/theme.service';
-import {CommonModule, NgForOf} from '@angular/common';
+import {CommonModule} from '@angular/common';
 import {ArticleCardComponent} from '../article-list/article-card.component';
 
 @Component({
@@ -110,9 +109,6 @@ export class HomeComponent implements OnInit {
   private title = inject(Title);
   private meta = inject(Meta);
 
-  themeService = inject(ThemeService);
-  isDark = signal(false);
-
   lang = this.langService.currentLang;
 
   featuredArticles = computed(() => this.articleService.articles().slice(0, 12));
@@ -120,10 +116,6 @@ export class HomeComponent implements OnInit {
   genreCount = computed(() => this.articleService.getUniqueGenres()().length);
 
   ngOnInit(): void {
-    // Đồng bộ class dark từ localStorage
-    this.themeService.initTheme();
-    this.isDark.set(this.themeService.isDark());
-
     this.route.paramMap.subscribe((params) => {
       const lang = params.get('lang');
       if (lang) this.langService.setLanguageFromRoute(lang);
@@ -134,11 +126,6 @@ export class HomeComponent implements OnInit {
       name: 'description',
       content: 'Bilingual Vietnamese-English article platform',
     });
-  }
-
-  toggleTheme(): void {
-    this.themeService.toggleTheme();
-    this.isDark.set(this.themeService.isDark());
   }
 
   readonly translateGenre = translateGenre;

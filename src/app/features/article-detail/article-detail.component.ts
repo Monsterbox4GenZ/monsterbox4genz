@@ -9,13 +9,11 @@ import { UserPreferencesService } from '../../core/services/user-preferences.ser
 import { MarkdownPipe } from '../../shared/pipes/markdown.pipe';
 import { SafeHtmlPipe } from '../../shared/pipes/safe-html.pipe';
 import { FormatContentPipe } from '../../shared/pipes/format-content-pipe';
-import { BreadcrumbsComponent, Breadcrumb } from '../../shared/components/breadcrumbs/breadcrumbs.component';
 import { RelatedArticlesComponent } from './related-articles.component';
 import { Article } from '../../core/models/article.model';
 import { translateGenre } from '../../core/utils/genre-translations';
 import { extractReferences, formatReferencesSection } from '../../core/utils/reference-processor';
 
-// @ts-ignore
 @Component({
   selector: 'app-article-detail',
   standalone: true,
@@ -220,14 +218,6 @@ export class ArticleDetailComponent implements OnInit {
   relatedArticles = computed(() => {
     const a = this.article();
     return a ? this.articleService.getRelatedArticles(a.id, 6)() : [];
-  });
-
-  breadcrumbs = computed<Breadcrumb[]>(() => {
-    const a = this.article();
-    return [
-      { label: this.langService.t('nav.articles'), route: ['/', this.lang(), 'articles'] },
-      { label: a ? a[this.lang()].title : '...' }
-    ];
   });
 
   constructor() {

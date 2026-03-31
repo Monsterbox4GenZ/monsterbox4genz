@@ -2,7 +2,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { HeaderComponent } from './shared/components/header/header.component';
 import { FooterComponent } from './shared/components/footer/footer.component';
-import { ThemeService } from './core/services/theme.service';
+import { UserPreferencesService } from './core/services/user-preferences.service';
 
 // Import thư viện Particles mới nhất
 import { NgxParticlesModule } from '@tsparticles/angular';
@@ -60,12 +60,8 @@ import {
   `]
 })
 export class App {
-  themeService = inject(ThemeService);
+  private prefs = inject(UserPreferencesService); // ensures dark mode is initialized on app start
   particlesId = 'tsparticles';
-
-  toggleDarkMode() {
-    document.documentElement.classList.toggle('dark');
-  }
 
   // Cấu hình chi tiết cho hiệu ứng mạng lưới màu tím (Plexus)
   // particlesOptions: ISourceOptions = {
@@ -125,11 +121,6 @@ export class App {
   //   },
   //   detectRetina: true
   // };
-
-  constructor() {
-    // Khởi tạo theme (Dark/Light) khi ứng dụng chạy
-    this.themeService.initTheme();
-  }
 
   // Hàm khởi tạo engine cho Particles
   particlesInit = async (engine: Engine): Promise<void> => {
