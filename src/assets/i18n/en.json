@@ -15,6 +15,19 @@
     "browseAll": "Browse All",
     "totalArticles": "articles"
   },
+  "home": {
+    "randomArticle": "Random Article",
+    "browseArticles": "Browse All Articles",
+    "completelyRandom": "Completely Random",
+    "randomByGenre": "Random by Genre",
+    "randomByAuthor": "Random by Author",
+    "selectGenre": "Select genre",
+    "selectAuthor": "Select author",
+    "go": "Go",
+    "languages": "Languages",
+    "randomByDifficulty": "Random by Difficulty",
+    "selectDifficulty": "Select difficulty"
+  },
   "article": {
     "relatedArticles": "Related Articles",
     "readingTime": "min read",

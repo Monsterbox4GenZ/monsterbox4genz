@@ -1,19 +1,32 @@
 {
   "nav": {
-    "home": "Trang ch\u1ee7",
-    "articles": "B\u00e0i vi\u1ebft",
-    "search": "T\u00ecm ki\u1ebfm"
+    "home": "Trang chủ",
+    "articles": "Bài viết",
+    "search": "Tìm kiếm"
   },
   "common": {
-    "readMore": "\u0110\u1ecdc th\u00eam",
-    "loading": "\u0110ang t\u1ea3i...",
-    "noResults": "Kh\u00f4ng t\u00ecm th\u1ea5y k\u1ebft qu\u1ea3",
-    "search": "T\u00ecm ki\u1ebfm...",
-    "switchLanguage": "\u0110\u1ecdc b\u1eb1ng Ti\u1ebfng Vi\u1ec7t",
-    "allArticles": "T\u1ea5t c\u1ea3 b\u00e0i vi\u1ebft",
-    "featuredArticles": "B\u00e0i vi\u1ebft n\u1ed5i b\u1eadt",
-    "browseAll": "Xem t\u1ea5t c\u1ea3",
-    "totalArticles": "b\u00e0i vi\u1ebft"
+    "readMore": "Đọc thêm",
+    "loading": "Đang tải...",
+    "noResults": "Không tìm thấy kết quả",
+    "search": "Tìm kiếm...",
+    "switchLanguage": "Đọc bằng Tiếng Việt",
+    "allArticles": "Tất cả bài viết",
+    "featuredArticles": "Bài viết nổi bật",
+    "browseAll": "Xem tất cả",
+    "totalArticles": "bài viết"
+  },
+  "home": {
+    "randomArticle": "Bài viết ngẫu nhiên",
+    "browseArticles": "Xem tất cả bài viết",
+    "completelyRandom": "Hoàn toàn ngẫu nhiên",
+    "randomByGenre": "Ngẫu nhiên theo thể loại",
+    "randomByAuthor": "Ngẫu nhiên theo tác giả",
+    "selectGenre": "Chọn thể loại",
+    "selectAuthor": "Chọn tác giả",
+    "go": "Đọc",
+    "languages": "Ngôn ngữ",
+    "randomByDifficulty": "Ngẫu nhiên theo độ khó",
+    "selectDifficulty": "Chọn độ khó"
   },
   "article": {
     "relatedArticles": "B\u00e0i vi\u1ebft li\u00ean quan",
