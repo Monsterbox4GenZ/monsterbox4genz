@@ -11,7 +11,7 @@ import { SafeHtmlPipe } from '../../shared/pipes/safe-html.pipe';
 import { FormatContentPipe } from '../../shared/pipes/format-content-pipe';
 import { RelatedArticlesComponent } from './related-articles.component';
 import { Article } from '../../core/models/article.model';
-import { translateGenre } from '../../core/utils/genre-translations';
+import { translateGenre, translateDifficulty } from '../../core/utils/genre-translations';
 import { extractReferences, formatReferencesSection } from '../../core/utils/reference-processor';
 
 @Component({
@@ -36,15 +36,15 @@ import { extractReferences, formatReferencesSection } from '../../core/utils/ref
       @if (loadError()) {
         <!-- Error state -->
         <div class="text-center py-16">
-          <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg class="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                   d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
           </svg>
-          <p class="text-gray-500 text-lg">
+          <p class="text-gray-500 dark:text-gray-400 text-lg">
             {{ langService.isVietnamese() ? 'Không tìm thấy bài viết.' : 'Article not found.' }}
           </p>
           <a [routerLink]="['/', lang(), 'articles']"
-             class="mt-4 inline-block text-blue-600 hover:underline">
+             class="mt-4 inline-block text-blue-600 dark:text-blue-400 hover:underline">
             ← {{ langService.t('article.backToList') }}
           </a>
         </div>
@@ -54,7 +54,7 @@ import { extractReferences, formatReferencesSection } from '../../core/utils/ref
         <header class="mb-8">
           <div class="flex items-center gap-2 mb-4 flex-wrap">
             <a [routerLink]="['/', lang(), 'articles']"
-               class="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center gap-1">
+               class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-sm font-medium flex items-center gap-1">
               ← {{ langService.t('article.backToList') }}
             </a>
           </div>
@@ -96,15 +96,15 @@ import { extractReferences, formatReferencesSection } from '../../core/utils/ref
             </div>
 
             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                         bg-blue-100 text-blue-800">
+                         bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-300">
               {{ translateGenre(article()!.metadata.genres, lang()) }}
             </span>
 
             @if (article()!.metadata.difficultyLevel !== 'Không có thông tin') {
               <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium"
                     [ngClass]="difficultyClass()">
-                {{ article()!.metadata.difficultyLevel }}
-              </span>
+              {{ translateDifficulty(article()!.metadata.difficultyLevel, lang()) }}
+            </span>
             }
           </div>
         </header>
@@ -257,6 +257,7 @@ export class ArticleDetailComponent implements OnInit {
   }
 
   readonly translateGenre = translateGenre;
+  readonly translateDifficulty = translateDifficulty;
 
   formatDate(dateStr: string): string {
     const date = new Date(dateStr);
@@ -291,9 +292,10 @@ export class ArticleDetailComponent implements OnInit {
     const a = this.article();
     if (!a) return '';
     const level = a.metadata.difficultyLevel;
-    if (level.includes('Cơ bản') || level.includes('Basic'))   return 'bg-green-100 text-green-800';
+    if (level.includes('Cơ bản') || level.includes('Basic'))
+      return 'bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-300';
     if (level.includes('Nâng cao') || level.includes('Chuyên sâu') || level.includes('Advanced'))
-      return 'bg-red-100   text-red-800';
-    return 'bg-amber-100 text-amber-800';
+      return 'bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-300';
+    return 'bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-300';
   }
 }
