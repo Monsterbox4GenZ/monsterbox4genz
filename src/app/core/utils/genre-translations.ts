@@ -25,3 +25,18 @@ export function translateGenre(viGenre: string, lang: string): string {
   const normalized = viGenre.normalize('NFC');
   return GENRE_VI_TO_EN[normalized] ?? viGenre;
 }
+
+const DIFFICULTY_VI_TO_EN: Record<string, string> = {
+  'Cơ bản':              'Basic',
+  'Trung bình':          'Intermediate',
+  'Cao':                 'Advanced',
+  'Nâng cao':            'Advanced',
+  'Chuyên sâu':          'Expert',
+  'Không có thông tin':  'No information',
+};
+
+export function translateDifficulty(viDifficulty: string, lang: string): string {
+  if (lang !== 'en') return viDifficulty;
+  const normalized = viDifficulty.normalize('NFC');
+  return DIFFICULTY_VI_TO_EN[normalized] ?? viDifficulty;
+}
