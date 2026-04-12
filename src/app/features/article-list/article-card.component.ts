@@ -3,7 +3,7 @@ import { RouterLink } from '@angular/router';
 import { ArticleIndexEntry } from '../../core/models/article.model';
 import { LanguageService } from '../../core/services/language.service';
 import { ArticleService } from '../../core/services/article.service';
-import { translateGenre } from '../../core/utils/genre-translations';
+import { translateGenre, translateDifficulty } from '../../core/utils/genre-translations';
 
 @Component({
   selector: 'app-article-card',
@@ -13,15 +13,17 @@ import { translateGenre } from '../../core/utils/genre-translations';
     <a
       [routerLink]="['/', lang(), 'article', article().id]"
       (mouseenter)="onHover()"
-      class="group block bg-white rounded-xl shadow-sm border border-gray-200
-              hover:shadow-md hover:border-blue-200 transition-all duration-200 h-full"
+      class="group block bg-white dark:bg-gray-800 rounded-xl shadow-sm
+              border border-gray-200 dark:border-gray-700
+              hover:shadow-md hover:border-blue-200 dark:hover:border-blue-700
+              transition-all duration-200 h-full"
     >
       <div class="p-5 sm:p-6 flex flex-col h-full">
         <!-- Meta info -->
         <div class="flex items-center gap-2 mb-3 flex-wrap">
           <span
             class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                       bg-blue-100 text-blue-800"
+                       bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-300"
           >
             {{ translatedGenre() }}
           </span>
@@ -30,38 +32,39 @@ import { translateGenre } from '../../core/utils/genre-translations';
               class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium"
               [class]="difficultyClass()"
             >
-              {{ article().metadata.difficultyLevel }}
+              {{ translateDifficulty(article().metadata.difficultyLevel, lang()) }}
             </span>
           }
-          <span class="text-xs text-gray-400 ml-auto">
+          <span class="text-xs text-gray-400 dark:text-gray-500 ml-auto">
             {{ formatDate(article().metadata.createdAt) }}
           </span>
         </div>
 
         <!-- Title -->
         <h3
-          class="text-lg font-semibold text-gray-900 group-hover:text-blue-600
+          class="text-lg font-semibold text-gray-900 dark:text-gray-100
+                   group-hover:text-blue-600 dark:group-hover:text-blue-400
                    transition-colors mb-2 line-clamp-2"
         >
           {{ article()[lang()].title }}
         </h3>
 
         <!-- Description -->
-        <p class="text-gray-600 text-sm line-clamp-3 mb-4 flex-grow">
+        <p class="text-gray-600 dark:text-gray-400 text-sm line-clamp-3 mb-4 flex-grow">
           {{ article()[lang()].description }}
         </p>
 
         <!-- Tags & Read more -->
-        <div class="flex items-center justify-between mt-auto pt-3 border-t border-gray-100">
+        <div class="flex items-center justify-between mt-auto pt-3 border-t border-gray-100 dark:border-gray-700">
           <div class="flex gap-1.5 overflow-hidden">
             @for (tag of article().metadata.tags.slice(0, 3); track tag) {
-              <span class="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded whitespace-nowrap">
+              <span class="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded whitespace-nowrap">
                 {{ tag }}
               </span>
             }
           </div>
           <span
-            class="text-blue-600 text-sm font-medium group-hover:underline whitespace-nowrap ml-2"
+            class="text-blue-600 dark:text-blue-400 text-sm font-medium group-hover:underline whitespace-nowrap ml-2"
           >
             {{ langService.t('common.readMore') }} →
           </span>
@@ -78,6 +81,8 @@ export class ArticleCardComponent {
 
   lang = this.langService.currentLang;
 
+  readonly translateDifficulty = translateDifficulty;
+
   translatedGenre(): string {
     return translateGenre(this.article().metadata.genres, this.lang());
   }
@@ -85,12 +90,12 @@ export class ArticleCardComponent {
   difficultyClass(): string {
     const level = this.article().metadata.difficultyLevel;
     if (level.includes('Cơ bản') || level.includes('Basic')) {
-      return 'bg-green-100 text-green-800';
+      return 'bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-300';
     }
     if (level.includes('Nâng cao') || level.includes('Chuyên sâu') || level.includes('Advanced')) {
-      return 'bg-red-100 text-red-800';
+      return 'bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-300';
     }
-    return 'bg-amber-100 text-amber-800';
+    return 'bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-300';
   }
 
   formatDate(dateStr: string): string {
