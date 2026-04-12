@@ -1,9 +1,10 @@
-import { Component, inject, signal, OnInit, OnDestroy } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Component, inject, signal, computed, OnInit, OnDestroy } from '@angular/core';
+import { Router, RouterLink, RouterLinkActive, NavigationEnd } from '@angular/router';
 import { LanguageService } from '../../../core/services/language.service';
 import { LanguageToggleComponent } from './language-toggle.component';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { filter } from 'rxjs/operators';
 import {
   ContentWidth,
   FontSize,
@@ -34,14 +35,20 @@ import {
           @for (item of navItems; track item.path) {
             <a
               [routerLink]="['/', lang(), item.path]"
-              routerLinkActive="text-transparent bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text"
-              [routerLinkActiveOptions]="{ exact: item.path === '' }"
               class="relative group transition-all duration-300"
+              [class.text-transparent]="isActive(item.path)"
+              [class.bg-gradient-to-r]="isActive(item.path)"
+              [class.from-blue-600]="isActive(item.path)"
+              [class.to-purple-600]="isActive(item.path)"
+              [class.bg-clip-text]="isActive(item.path)"
             >
               <span class="group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-blue-600 group-hover:to-purple-600 group-hover:bg-clip-text">
                 {{ langService.t(item.label) }}
               </span>
-              <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-600 to-purple-600 transition-all duration-300 group-hover:w-full"></span>
+              <span class="absolute -bottom-1 left-0 h-0.5 bg-gradient-to-r from-blue-600 to-purple-600 transition-all duration-300"
+                [class.w-full]="isActive(item.path)"
+                [class.w-0]="!isActive(item.path)"
+                [class.group-hover:w-full]="!isActive(item.path)"></span>
             </a>
           }
         </div>
@@ -122,7 +129,16 @@ import {
       @if (mobileMenuOpen()) {
         <div class="mt-3 md:hidden bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-800 p-4 space-y-2 animate-in fade-in slide-in-from-top-2">
           @for (item of navItems; track item.path) {
-            <a [routerLink]="['/', lang(), item.path]" (click)="closeMobileMenu()" class="block px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg">
+            <a [routerLink]="['/', lang(), item.path]" (click)="closeMobileMenu()"
+              class="block px-4 py-2 text-sm font-medium rounded-lg"
+              [class.text-blue-600]="isActive(item.path)"
+              [class.bg-blue-50]="isActive(item.path)"
+              [class.dark:bg-blue-900/20]="isActive(item.path)"
+              [class.dark:text-blue-400]="isActive(item.path)"
+              [class.text-gray-700]="!isActive(item.path)"
+              [class.dark:text-gray-200]="!isActive(item.path)"
+              [class.hover:bg-gray-50]="!isActive(item.path)"
+              [class.dark:hover:bg-gray-800]="!isActive(item.path)">
               {{ langService.t(item.label) }}
             </a>
           }
@@ -138,10 +154,12 @@ import {
 export class HeaderComponent implements OnInit, OnDestroy {
   langService = inject(LanguageService);
   prefs = inject(UserPreferencesService);
+  private router = inject(Router);
 
   mobileMenuOpen = signal(false);
   settingOpen = signal(false);
   lang = this.langService.currentLang;
+  currentUrl = signal(this.router.url);
 
   navItems = [
     { path: '', label: 'nav.home' },
@@ -162,12 +180,26 @@ export class HeaderComponent implements OnInit, OnDestroy {
     { id: 'wide', label: 'Rộng', icon: 'M2 6h20M2 12h20M2 18h20' }
   ];
 
+  private routerSub = this.router.events.pipe(
+    filter((e): e is NavigationEnd => e instanceof NavigationEnd)
+  ).subscribe(e => this.currentUrl.set(e.urlAfterRedirects));
+
+  isActive(path: string): boolean {
+    const url = this.currentUrl();
+    const lang = this.lang();
+    if (path === '') {
+      return url === `/${lang}` || url === `/${lang}/`;
+    }
+    return url.startsWith(`/${lang}/${path}`);
+  }
+
   ngOnInit() {
     window.addEventListener('scroll', this.handleScroll);
   }
 
   ngOnDestroy() {
     window.removeEventListener('scroll', this.handleScroll);
+    this.routerSub.unsubscribe();
   }
 
   handleScroll = () => {
