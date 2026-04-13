@@ -148,7 +148,7 @@ import {
   `,
   styles: [`
     .glass { background: rgba(255, 255, 255, 0.75) !important; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
-    .nav-shrunk { max-width: 900px !important; margin-top: 10px !important; }
+    .nav-shrunk { left: 50% !important; right: auto !important; transform: translateX(-50%) !important; max-width: 900px !important; margin-top: 10px !important; margin-left: 0 !important; margin-right: 0 !important; }
   `]
 })
 export class HeaderComponent implements OnInit, OnDestroy {
