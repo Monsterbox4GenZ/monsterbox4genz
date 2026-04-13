@@ -16,7 +16,7 @@ import {NgForOf} from '@angular/common';
   template: `
     <div class="min-h-screen
      bg-gradient-to-br from-blue-100 via-indigo-100 to-purple-100
-     dark:from-gray-900 dark:via-gray-900 dark:to-gray-800">
+     dark:from-gray-950 dark:via-gray-900 dark:to-purple-950">
 
       <!-- giữ nguyên code của bạn -->
 <!--      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-22">-->
@@ -24,12 +24,12 @@ import {NgForOf} from '@angular/common';
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-30">
       <!-- Search Header -->
       <div class="max-w-2xl mx-auto mb-8">
-        <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 text-center mb-6">
+        <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white text-center mb-6">
           {{ langService.t('nav.search') }}
         </h1>
 
         <div class="relative">
-          <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
+          <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500"
                fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
@@ -39,7 +39,9 @@ import {NgForOf} from '@angular/common';
             [placeholder]="langService.t('search.placeholder')"
             [ngModel]="query()"
             (ngModelChange)="onQueryChange($event)"
-            class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl text-lg
+            class="w-full pl-12 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl text-lg
+                   bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100
+                   placeholder:text-gray-400 dark:placeholder:text-gray-500
                    focus:ring-2 focus:ring-blue-500 focus:border-blue-500
                    shadow-sm"
             autofocus
@@ -47,7 +49,7 @@ import {NgForOf} from '@angular/common';
           @if (query()) {
             <button
               (click)="clearSearch()"
-              class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer">
+              class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 cursor-pointer">
               <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
               </svg>
@@ -59,9 +61,9 @@ import {NgForOf} from '@angular/common';
       <!-- Filter Sections: Categories & Authors -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
         <!-- Categories Section -->
-        <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
-          <h2 class="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3 flex items-center gap-2">
-            <svg class="w-4 h-4 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-5">
+          <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-3 flex items-center gap-2">
+            <svg class="w-4 h-4 text-blue-500 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
             </svg>
@@ -73,7 +75,7 @@ import {NgForOf} from '@angular/common';
                 (click)="selectGenre(genre.vi)"
                 [class]="activeGenre() === genre.vi
     ? 'bg-blue-600 text-white border-blue-600'
-    : 'bg-gray-100 text-gray-700 border-gray-200 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-300'"
+    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-700 dark:hover:text-blue-400 hover:border-blue-300 dark:hover:border-blue-700'"
                 class="text-xs px-3 py-1.5 rounded-full border transition-colors cursor-pointer font-medium">
                 {{ lang() === 'en' ? genre.en : genre.vi }}
               </button>
@@ -82,9 +84,9 @@ import {NgForOf} from '@angular/common';
         </div>
 
         <!-- Authors Section -->
-        <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
-          <h2 class="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3 flex items-center gap-2">
-            <svg class="w-4 h-4 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-5">
+          <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-3 flex items-center gap-2">
+            <svg class="w-4 h-4 text-blue-500 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
             </svg>
@@ -96,7 +98,7 @@ import {NgForOf} from '@angular/common';
                 (click)="selectAuthor(author)"
                 [class]="activeAuthor() === author
                   ? 'bg-blue-600 text-white border-blue-600'
-                  : 'bg-gray-100 text-gray-700 border-gray-200 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-300'"
+                  : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-700 dark:hover:text-blue-400 hover:border-blue-300 dark:hover:border-blue-700'"
                 class="text-xs px-3 py-1.5 rounded-full border transition-colors cursor-pointer font-medium">
                 {{ author }}
               </button>
@@ -107,9 +109,9 @@ import {NgForOf} from '@angular/common';
 
       <!-- Results -->
       @if (activeGenre() || activeAuthor() || query()) {
-        <p class="text-gray-500 mb-6">
+        <p class="text-gray-500 dark:text-gray-400 mb-6">
           {{ langService.t('search.resultsFor') }}
-          "<span class="font-semibold text-gray-900">{{ activeLabel() }}</span>"
+          "<span class="font-semibold text-gray-900 dark:text-white">{{ activeLabel() }}</span>"
           — {{ results().length }} {{ langService.t('common.totalArticles') }}
         </p>
 
@@ -132,21 +134,21 @@ import {NgForOf} from '@angular/common';
           }
         } @else {
           <div class="text-center py-16">
-            <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg class="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                     d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
             </svg>
-            <p class="text-gray-500 text-lg">{{ langService.t('search.noResults') }}</p>
+            <p class="text-gray-500 dark:text-gray-400 text-lg">{{ langService.t('search.noResults') }}</p>
           </div>
         }
       } @else {
         <!-- No query yet - show prompt -->
         <div class="text-center py-16">
-          <svg class="w-20 h-20 text-gray-200 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg class="w-20 h-20 text-gray-200 dark:text-gray-700 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
                   d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
           </svg>
-          <p class="text-gray-400 text-lg">{{ langService.t('search.placeholder') }}</p>
+          <p class="text-gray-400 dark:text-gray-500 text-lg">{{ langService.t('search.placeholder') }}</p>
         </div>
       }
     </div>

@@ -57,8 +57,16 @@
   @apply bg-gray-100 px-1 py-0.5 rounded text-sm;
 }
 
+.dark .prose code {
+  @apply bg-gray-800 text-gray-200;
+}
+
 .prose pre {
   @apply bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto mb-4;
+}
+
+.dark .prose pre {
+  @apply bg-gray-800;
 }
 
 .prose pre code {
@@ -73,6 +81,10 @@
   @apply text-blue-600 hover:text-blue-800 underline;
 }
 
+.dark .prose a {
+  @apply text-blue-400 hover:text-blue-300;
+}
+
 .prose img {
   @apply rounded-lg max-w-full h-auto my-4;
 }
@@ -85,12 +97,24 @@
   @apply bg-gray-100 border border-gray-300 px-4 py-2 text-left font-semibold;
 }
 
+.dark .prose th {
+  @apply bg-gray-800 border-gray-600 text-gray-200;
+}
+
 .prose td {
   @apply border border-gray-300 px-4 py-2;
 }
 
+.dark .prose td {
+  @apply border-gray-600 text-gray-300;
+}
+
 .prose hr {
   @apply border-gray-300 my-8;
+}
+
+.dark .prose hr {
+  @apply border-gray-700;
 }
 
 /* Inline citation links [1], [2], etc. */
@@ -104,9 +128,21 @@
   @apply underline text-blue-800;
 }
 
+.dark .prose .citation-link {
+  @apply text-blue-400;
+}
+
+.dark .prose .citation-link:hover {
+  @apply text-blue-300;
+}
+
 /* References section at end of article */
 .references-section {
   @apply mt-12 pt-8 border-t-2 border-gray-200;
+}
+
+.dark .references-section {
+  @apply border-gray-700;
 }
 
 .references-section h3 {
@@ -118,12 +154,24 @@
   scroll-margin-top: 5rem;
 }
 
+.dark .reference-item {
+  @apply text-gray-400;
+}
+
 .reference-item .ref-back-link {
   @apply text-blue-600 font-semibold no-underline;
 }
 
 .reference-item .ref-back-link:hover {
   @apply text-blue-800;
+}
+
+.dark .reference-item .ref-back-link {
+  @apply text-blue-400;
+}
+
+.dark .reference-item .ref-back-link:hover {
+  @apply text-blue-300;
 }
 
 .reference-item a {
@@ -133,6 +181,14 @@
 
 .reference-item a:hover {
   @apply text-blue-800 underline;
+}
+
+.dark .reference-item a {
+  @apply text-blue-400;
+}
+
+.dark .reference-item a:hover {
+  @apply text-blue-300;
 }
 
 /* Scroll target offset for inline citations when navigating back from references */
@@ -146,9 +202,18 @@
   100% { background-color: transparent; }
 }
 
+@keyframes cite-flash-dark {
+  0%   { background-color: rgba(139, 92, 246, 0.4); }
+  100% { background-color: transparent; }
+}
+
 .cite-highlight {
   animation: cite-flash 1.5s ease-out;
   border-radius: 2px;
+}
+
+.dark .cite-highlight {
+  animation: cite-flash-dark 1.5s ease-out;
 }
 
 /* Line clamp utilities */
@@ -186,7 +251,7 @@ body {
 }
 
 .dark body {
-  @apply bg-gray-900 text-white;
+  @apply bg-gray-950 text-white;
 }
 
 /* Prose / Markdown */

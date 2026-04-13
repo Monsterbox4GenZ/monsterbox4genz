@@ -100,6 +100,57 @@ export class ArticleService {
     });
   }
 
+  getUniqueDifficulties() {
+    return computed(() => {
+      const difficulties = new Set<string>();
+      this.articles().forEach(a => {
+        const d = a.metadata.difficultyLevel?.trim();
+        if (d && !d.toLowerCase().includes('không có thông tin')) {
+          difficulties.add(d);
+        }
+      });
+      return Array.from(difficulties).sort();
+    });
+  }
+
+  getArticlesByDifficulty(difficulty: string) {
+    return this.articles().filter(a =>
+      a.metadata.difficultyLevel?.trim() === difficulty
+    );
+  }
+
+  getUniqueCreators() {
+    return computed(() => {
+      const creators = new Set<string>();
+      this.articles().forEach(a => {
+        a.metadata.creators?.forEach(c => creators.add(c.trim()));
+      });
+      return Array.from(creators).sort();
+    });
+  }
+
+  getArticlesByCreator(creator: string) {
+    return this.articles().filter(a =>
+      a.metadata.creators?.some(c => c.trim() === creator)
+    );
+  }
+
+  getGenresForCreator(creator: string): string[] {
+    const genres = new Set<string>();
+    this.getArticlesByCreator(creator).forEach(a => {
+      if (a.metadata.genres) {
+        a.metadata.genres.split(',').forEach(g => genres.add(g.trim()));
+      }
+    });
+    return Array.from(genres).sort();
+  }
+
+  getArticlesByCreatorAndGenre(creator: string, genre: string) {
+    return this.getArticlesByCreator(creator).filter(a =>
+      a.metadata.genres?.includes(genre)
+    );
+  }
+
   preloadArticle(slug: string): void {
     if (!this.loadedArticles.has(slug) && !this.contentCache.has(slug)) {
       this.loadArticleContent(slug).subscribe();

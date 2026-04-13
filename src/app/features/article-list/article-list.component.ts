@@ -6,6 +6,7 @@ import { ArticleService } from '../../core/services/article.service';
 import { LanguageService } from '../../core/services/language.service';
 import { ArticleCardComponent } from './article-card.component';
 import { BreadcrumbsComponent, Breadcrumb } from '../../shared/components/breadcrumbs/breadcrumbs.component';
+import { translateGenre } from '../../core/utils/genre-translations';
 
 @Component({
   selector: 'app-article-list',
@@ -14,7 +15,7 @@ import { BreadcrumbsComponent, Breadcrumb } from '../../shared/components/breadc
   template: `
     <div class="min-h-screen
      bg-gradient-to-br from-blue-100 via-indigo-100 to-purple-100
-     dark:from-gray-900 dark:via-gray-900 dark:to-gray-800">
+     dark:from-gray-950 dark:via-gray-900 dark:to-purple-950">
 
 <!--      <app-breadcrumbs [items]="breadcrumbs()" />-->
 
@@ -38,16 +39,19 @@ import { BreadcrumbsComponent, Breadcrumb } from '../../shared/components/breadc
               [placeholder]="langService.t('common.search')"
               [ngModel]="searchQuery()"
               (ngModelChange)="onSearchChange($event)"
-              class="px-4 py-2 border border-gray-300 rounded-lg text-sm
-                 bg-white/80 backdrop-blur
+              class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm
+                 bg-white/80 dark:bg-gray-800/80 backdrop-blur
+                 text-gray-900 dark:text-gray-100
+                 placeholder:text-gray-400 dark:placeholder:text-gray-500
                  focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-full sm:w-64"
             />
 
             <select
               [ngModel]="selectedGenre()"
               (ngModelChange)="onGenreChange($event)"
-              class="px-4 py-2 border border-gray-300 rounded-lg text-sm
-                 bg-white/80 backdrop-blur
+              class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm
+                 bg-white/80 dark:bg-gray-800/80 backdrop-blur
+                 text-gray-900 dark:text-gray-100
                  focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer"
             >
               <option value="">
@@ -56,7 +60,7 @@ import { BreadcrumbsComponent, Breadcrumb } from '../../shared/components/breadc
               </option>
 
               @for (genre of genres(); track genre) {
-                <option [value]="genre">{{ genre }}</option>
+                <option [value]="genre">{{ translateGenre(genre, lang()) }}</option>
               }
             </select>
           </div>
@@ -77,21 +81,23 @@ import { BreadcrumbsComponent, Breadcrumb } from '../../shared/components/breadc
             <button
               (click)="goToPage(currentPage() - 1)"
               [disabled]="currentPage() === 1"
-              class="px-3 py-2 rounded-lg border border-gray-300 text-sm font-medium
-                     disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50
+              class="px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-sm font-medium
+                     text-gray-700 dark:text-gray-300
+                     disabled:opacity-50 disabled:cursor-not-allowed
+                     hover:bg-gray-50 dark:hover:bg-gray-700
                      transition-colors cursor-pointer">
               ←
             </button>
 
             @for (page of visiblePages(); track page) {
               @if (page === -1) {
-                <span class="px-2 text-gray-400">...</span>
+                <span class="px-2 text-gray-400 dark:text-gray-500">...</span>
               } @else {
                 <button
                   (click)="goToPage(page)"
                   [class]="page === currentPage()
                     ? 'bg-blue-600 text-white border-blue-600'
-                    : 'border-gray-300 text-gray-700 hover:bg-gray-50'"
+                    : 'border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'"
                   class="px-3 py-2 rounded-lg border text-sm font-medium transition-colors cursor-pointer">
                   {{ page }}
                 </button>
@@ -101,8 +107,10 @@ import { BreadcrumbsComponent, Breadcrumb } from '../../shared/components/breadc
             <button
               (click)="goToPage(currentPage() + 1)"
               [disabled]="currentPage() === totalPages()"
-              class="px-3 py-2 rounded-lg border border-gray-300 text-sm font-medium
-                     disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50
+              class="px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-sm font-medium
+                     text-gray-700 dark:text-gray-300
+                     disabled:opacity-50 disabled:cursor-not-allowed
+                     hover:bg-gray-50 dark:hover:bg-gray-700
                      transition-colors cursor-pointer">
               →
             </button>
@@ -110,11 +118,11 @@ import { BreadcrumbsComponent, Breadcrumb } from '../../shared/components/breadc
         }
       } @else {
         <div class="text-center py-16">
-          <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg class="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                   d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
           </svg>
-          <p class="text-gray-500 text-lg">{{ langService.t('common.noResults') }}</p>
+          <p class="text-gray-500 dark:text-gray-400 text-lg">{{ langService.t('common.noResults') }}</p>
         </div>
       }
     </div>
@@ -125,6 +133,8 @@ export class ArticleListComponent implements OnInit {
   langService = inject(LanguageService);
   private route = inject(ActivatedRoute);
   private titleService = inject(Title);
+
+  readonly translateGenre = translateGenre;
 
   searchQuery = signal('');
   selectedGenre = signal('');
