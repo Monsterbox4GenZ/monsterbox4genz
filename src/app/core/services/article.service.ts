@@ -1,8 +1,8 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { Observable, of } from 'rxjs';
-import { map, catchError, shareReplay } from 'rxjs/operators';
+import { Observable, of, combineLatest } from 'rxjs';
+import { map, catchError, shareReplay, take } from 'rxjs/operators';
 import {
   ArticlesIndex,
   ArticleIndexEntry,
@@ -15,13 +15,14 @@ export class ArticleService {
   private http = inject(HttpClient);
   private readonly BASE_PATH = '/assets/data';
 
-  private indexData = toSignal(
-    this.http.get<ArticlesIndex>(`${this.BASE_PATH}/articles-index.json`).pipe(
-      catchError(() => of({ meta: { totalArticles: 0 }, articles: [] } as ArticlesIndex)),
-      shareReplay(1)
-    ),
-    { initialValue: { meta: { totalArticles: 0 }, articles: [] } as ArticlesIndex }
+  private index$ = this.http.get<ArticlesIndex>(`${this.BASE_PATH}/articles-index.json`).pipe(
+    catchError(() => of({ meta: { totalArticles: 0 }, articles: [] } as ArticlesIndex)),
+    shareReplay(1)
   );
+
+  private indexData = toSignal(this.index$, {
+    initialValue: { meta: { totalArticles: 0 }, articles: [] } as ArticlesIndex
+  });
 
   readonly articles = computed(() => {
     const seen = new Set<string>();
@@ -46,12 +47,12 @@ export class ArticleService {
    */
   getArticle$(slug: string): Observable<Article | undefined> {
     const cached = this.loadedArticles.get(slug);
-    if (cached) {
-      return of(this.mergeWithIndex(slug, cached));
-    }
 
-    return this.loadArticleContent(slug).pipe(
-      map(content => {
+    return combineLatest([
+      this.index$.pipe(take(1)),
+      cached ? of(cached) : this.loadArticleContent(slug)
+    ]).pipe(
+      map(([_, content]) => {
         if (content) {
           this.loadedArticles.set(slug, content);
           return this.mergeWithIndex(slug, content);
