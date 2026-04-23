@@ -1,0 +1,6 @@
+{
+  "outputDirectory": "dist/monsterbox-articles/browser",
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
