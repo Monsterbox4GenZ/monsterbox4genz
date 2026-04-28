@@ -15,23 +15,97 @@ import {
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive, LanguageToggleComponent, FormsModule, CommonModule],
+  imports: [RouterLink, LanguageToggleComponent, FormsModule, CommonModule],
   template: `
     <nav
       id="main-nav"
-      class="fixed top-0 left-0 right-0 z-50 w-full max-w-7xl mx-auto mt-6 px-4 transition-all duration-300"
+      class="fixed top-0 left-0 right-0 z-50 w-full max-w-7xl mx-auto mt-2 md:mt-4 px-4 transition-all duration-300"
     >
+      <ng-template #settingsMenu>
+        <div *ngIf="settingOpen()" class="absolute right-0 mt-3 w-64 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-2xl p-5 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+          <div class="space-y-6">
+            <div>
+              <label class="block text-[11px] font-bold uppercase tracking-widest text-gray-400 mb-3">Cỡ chữ</label>
+              <div class="flex bg-gray-50 dark:bg-gray-800 p-1 rounded-xl">
+                @for (size of fontSizes; track size) {
+                  <button (click)="prefs.setFontSize(size)"
+                          class="flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all"
+                          [ngClass]="prefs.fontSize() === size ? 'bg-white dark:bg-gray-700 text-blue-600 shadow-sm' : 'text-gray-500'">
+                    {{ size === 'base' ? 'Mặc định' : (size | uppercase) }}
+                  </button>
+                }
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-[11px] font-bold uppercase tracking-widest text-gray-400 mb-3">Kiểu chữ</label>
+              <div class="grid grid-cols-3 gap-2">
+                @for (style of fontStyles; track style.id) {
+                  <button (click)="prefs.setFontStyle(style.id)"
+                          class="flex flex-col items-center py-3 border-2 rounded-2xl transition-all"
+                          [ngClass]="prefs.fontStyle() === style.id ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-600' : 'border-transparent bg-gray-50 dark:bg-gray-800 text-gray-400'">
+                    <span [class]="'font-' + style.id" class="text-xl mb-1">Aa</span>
+                    <span class="text-[10px] font-bold uppercase">{{ style.label }}</span>
+                  </button>
+                }
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-[11px] font-bold uppercase tracking-widest text-gray-400 mb-3">Độ rộng</label>
+              <div class="flex gap-2">
+                @for (w of contentWidths; track w.id) {
+                  <button (click)="prefs.setContentWidth(w.id)"
+                          class="flex-1 flex flex-col items-center py-3 rounded-2xl border-2 transition-all"
+                          [ngClass]="prefs.contentWidth() === w.id ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600' : 'border-transparent bg-gray-50 dark:bg-gray-800 text-gray-400'">
+                    <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" [attr.d]="w.icon"></path></svg>
+                    <span class="text-[10px] font-bold uppercase">{{ w.label }}</span>
+                  </button>
+                }
+              </div>
+            </div>
+
+            <button (click)="resetToDefault()" class="w-full py-2 text-[11px] font-bold text-gray-400 hover:text-red-500 border-t border-gray-100 dark:border-gray-800 pt-4 uppercase tracking-widest transition-colors">
+              Khôi phục mặc định
+            </button>
+          </div>
+        </div>
+      </ng-template>
+
       <div
         id="nav-container"
-        class="bg-white dark:bg-gray-900 rounded-full px-6 py-3 flex justify-between items-center shadow-xl border border-gray-200 dark:border-gray-700 transition-all duration-300"
+        class="bg-white dark:bg-gray-900 w-full max-w-7xl mx-auto rounded-2xl md:rounded-full px-4 py-2 md:px-6 md:py-3 flex justify-between items-center shadow-xl border border-gray-200 dark:border-gray-700 transition-all duration-500"
       >
-        <a [routerLink]="['/', lang()]" class="text-2xl font-bold flex-shrink-0">
-          <span class="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            Monster Box
-          </span>
-        </a>
+        <div class="flex justify-between items-center w-full md:w-auto">
+          <a [routerLink]="['/', lang()]" class="text-xl md:text-2xl font-bold flex-shrink-0">
+            <span class="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              Monster Box
+            </span>
+          </a>
 
-        <div id="nav-links" class="hidden md:flex gap-8 text-[15px] font-medium text-gray-700 dark:text-gray-200 transition-opacity duration-300">
+          <div class="flex md:hidden items-center gap-1.5 sm:gap-2">
+            <app-language-toggle />
+            <button (click)="prefs.toggleTheme()" class="p-1.5 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md transition-all">
+              @if (prefs.isDark()) {
+                <svg class="w-4 h-4 text-yellow-300" fill="currentColor" viewBox="0 0 20 20"><path d="M10 3a1 1 0 011 1v1a1 1 0 11-2 0V4a1 1 0 011-1zm4 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+              } @else {
+                <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8 8 0 1010.586 10.586z"/></svg>
+              }
+            </button>
+            <div class="relative">
+              <button (click)="toggleSetting()" class="p-1.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+              </button>
+              <ng-container *ngTemplateOutlet="settingsMenu"></ng-container>
+            </div>
+            <button (click)="toggleMobileMenu()" class="p-1.5 rounded-full text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+            </button>
+          </div>
+        </div>
+
+
+        <div id="nav-links-desktop" class="hidden md:flex gap-8 text-[15px] font-medium text-gray-700 dark:text-gray-200 transition-all duration-500 max-w-[500px] overflow-hidden whitespace-nowrap opacity-100">
           @for (item of navItems; track item.path) {
             <a
               [routerLink]="['/', lang(), item.path]"
@@ -53,11 +127,10 @@ import {
           }
         </div>
 
-        <div class="flex items-center gap-2 sm:gap-3">
+        <div class="hidden md:flex items-center gap-2 sm:gap-3">
           <app-language-toggle />
 
-          <!-- Dark mode toggle — đọc/ghi hoàn toàn qua prefs -->
-          <button (click)="prefs.toggleTheme()" class="p-2 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md hover:scale-105 active:scale-95 transition-all">
+          <button (click)="prefs.toggleTheme()" class="p-2 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md transition-all">
             @if (prefs.isDark()) {
               <svg class="w-5 h-5 text-yellow-300" fill="currentColor" viewBox="0 0 20 20"><path d="M10 3a1 1 0 011 1v1a1 1 0 11-2 0V4a1 1 0 011-1zm4 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
             } @else {
@@ -66,79 +139,25 @@ import {
           </button>
 
           <div class="relative">
-            <button (click)="toggleSetting()" class="p-2 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+            <button (click)="toggleSetting()" class="p-2 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 transition-colors">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
             </button>
-
-            <div *ngIf="settingOpen()" class="absolute right-0 mt-3 w-64 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-2xl p-5 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-              <div class="space-y-6">
-                <div>
-                  <label class="block text-[11px] font-bold uppercase tracking-widest text-gray-400 mb-3">Cỡ chữ</label>
-                  <div class="flex bg-gray-50 dark:bg-gray-800 p-1 rounded-xl">
-                    @for (size of fontSizes; track size) {
-                      <button (click)="prefs.setFontSize(size)"
-                              class="flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all"
-                              [ngClass]="prefs.fontSize() === size ? 'bg-white dark:bg-gray-700 text-blue-600 shadow-sm' : 'text-gray-500'">
-                        {{ size === 'base' ? 'Mặc định' : (size | uppercase) }}
-                      </button>
-                    }
-                  </div>
-                </div>
-
-                <div>
-                  <label class="block text-[11px] font-bold uppercase tracking-widest text-gray-400 mb-3">Kiểu chữ</label>
-                  <div class="grid grid-cols-3 gap-2">
-                    @for (style of fontStyles; track style.id) {
-                      <button (click)="prefs.setFontStyle(style.id)"
-                              class="flex flex-col items-center py-3 border-2 rounded-2xl transition-all"
-                              [ngClass]="prefs.fontStyle() === style.id ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-600' : 'border-transparent bg-gray-50 dark:bg-gray-800 text-gray-400'">
-                        <span [class]="'font-' + style.id" class="text-xl mb-1">Aa</span>
-                        <span class="text-[10px] font-bold uppercase">{{ style.label }}</span>
-                      </button>
-                    }
-                  </div>
-                </div>
-
-                <div>
-                  <label class="block text-[11px] font-bold uppercase tracking-widest text-gray-400 mb-3">Độ rộng</label>
-                  <div class="flex gap-2">
-                    @for (w of contentWidths; track w.id) {
-                      <button (click)="prefs.setContentWidth(w.id)"
-                              class="flex-1 flex flex-col items-center py-3 rounded-2xl border-2 transition-all"
-                              [ngClass]="prefs.contentWidth() === w.id ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600' : 'border-transparent bg-gray-50 dark:bg-gray-800 text-gray-400'">
-                        <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" [attr.d]="w.icon"></path></svg>
-                        <span class="text-[10px] font-bold uppercase">{{ w.label }}</span>
-                      </button>
-                    }
-                  </div>
-                </div>
-
-                <button (click)="resetToDefault()" class="w-full py-2 text-[11px] font-bold text-gray-400 hover:text-red-500 border-t border-gray-100 dark:border-gray-800 pt-4 uppercase tracking-widest transition-colors">
-                  Khôi phục mặc định
-                </button>
-              </div>
-            </div>
+            <ng-container *ngTemplateOutlet="settingsMenu"></ng-container>
           </div>
-
-          <button (click)="toggleMobileMenu()" class="md:hidden p-2 text-gray-700 dark:text-gray-200">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
-          </button>
         </div>
       </div>
 
       @if (mobileMenuOpen()) {
         <div class="mt-3 md:hidden bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-800 p-4 space-y-2 animate-in fade-in slide-in-from-top-2">
           @for (item of navItems; track item.path) {
-            <a [routerLink]="['/', lang(), item.path]" (click)="closeMobileMenu()"
+            <a
+              [routerLink]="['/', lang(), item.path]"
+              (click)="closeMobileMenu()"
               class="block px-4 py-2 text-sm font-medium rounded-lg"
-              [class.text-blue-600]="isActive(item.path)"
-              [class.bg-blue-50]="isActive(item.path)"
-              [class.dark:bg-blue-900/20]="isActive(item.path)"
-              [class.dark:text-blue-400]="isActive(item.path)"
-              [class.text-gray-700]="!isActive(item.path)"
-              [class.dark:text-gray-200]="!isActive(item.path)"
-              [class.hover:bg-gray-50]="!isActive(item.path)"
-              [class.dark:hover:bg-gray-800]="!isActive(item.path)">
+              [ngClass]="isActive(item.path)
+              ? 'text-blue-600 bg-blue-50 dark:bg-blue-900/20 dark:text-blue-400'
+              : 'text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800'"
+            >
               {{ langService.t(item.label) }}
             </a>
           }
@@ -148,7 +167,6 @@ import {
   `,
   styles: [`
     .glass { background: rgba(255, 255, 255, 0.75) !important; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
-    .nav-shrunk { left: 50% !important; right: auto !important; transform: translateX(-50%) !important; max-width: 900px !important; margin-top: 10px !important; margin-left: 0 !important; margin-right: 0 !important; }
   `]
 })
 export class HeaderComponent implements OnInit, OnDestroy {
@@ -205,20 +223,32 @@ export class HeaderComponent implements OnInit, OnDestroy {
   handleScroll = () => {
     const nav = document.getElementById('main-nav');
     const container = document.getElementById('nav-container');
-    const links = document.getElementById('nav-links');
+    const desktopLinks = document.getElementById('nav-links-desktop');
 
-    if (!nav || !container || !links) return;
+    if (!nav || !container) return;
 
     if (window.scrollY > 50) {
-      nav.classList.add('nav-shrunk');
-      container.classList.add('glass', 'py-2');
-      container.classList.remove('py-3');
-      links.classList.add('opacity-0', 'pointer-events-none');
+      if (window.innerWidth >= 768) {
+        container.classList.add('glass', 'max-w-[800px]', 'md:py-2');
+        container.classList.remove('md:py-3', 'max-w-7xl');
+        if (desktopLinks) {
+          desktopLinks.classList.add('max-w-0', 'opacity-0');
+          desktopLinks.classList.remove('max-w-[500px]', 'opacity-100', 'gap-8');
+        }
+      } else {
+        container.classList.add('glass');
+      }
     } else {
-      nav.classList.remove('nav-shrunk');
-      container.classList.remove('glass', 'py-2');
-      container.classList.add('py-3');
-      links.classList.remove('opacity-0', 'pointer-events-none');
+      if (window.innerWidth >= 768) {
+        container.classList.remove('glass', 'max-w-[800px]', 'md:py-2');
+        container.classList.add('md:py-3', 'max-w-7xl');
+        if (desktopLinks) {
+          desktopLinks.classList.remove('max-w-0', 'opacity-0');
+          desktopLinks.classList.add('max-w-[500px]', 'opacity-100', 'gap-8');
+        }
+      } else {
+        container.classList.remove('glass');
+      }
     }
   };
 
