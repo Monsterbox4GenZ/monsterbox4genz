@@ -26,7 +26,7 @@ import { extractReferences, formatReferencesSection } from '../../core/utils/ref
     RelatedArticlesComponent,
   ],
   template: `
-    <div class="mx-auto px-4 sm:px-6 lg:px-8 py-36 transition-all duration-500"
+    <div class="mx-auto px-4 sm:px-6 lg:px-8 pt-20 md:pt-28 pb-12 transition-all duration-500"
          [ngClass]="{
            'max-w-3xl':          prefs.contentWidth() === 'narrow',
            'max-w-5xl':          prefs.contentWidth() === 'medium',

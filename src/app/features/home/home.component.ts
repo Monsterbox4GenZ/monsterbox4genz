@@ -19,37 +19,51 @@ import { ArticleCardComponent } from '../article-list/article-card.component';
       (click)="closeRandomMenu()">
 
       <!-- HERO -->
-      <section class="relative text-white">
+      <section class="relative text-white  h-[500px] md:h-[400px] flex items-center">
         <div
           class="absolute inset-0 bg-cover bg-center"
-          style="background-image: url('https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=1600');"
+          style="background-image: url('../../../assets/images/banner.jpg');"
         ></div>
 
         <div class="absolute inset-0
-          bg-gradient-to-br from-blue-600/80 via-blue-700/80 to-indigo-800/80
+          bg-gradient-to-br to-indigo-800/80
           dark:from-gray-950/90 dark:via-purple-950/85 dark:to-gray-950/90
           transition-colors duration-500"></div>
 
-        <div class="relative max-w-5xl mx-auto px-4 py-25 text-center">
+        <!-- Stats on the left edge (desktop) / right edge (mobile) -->
+        <div class="absolute right-4 top-22 xl:top-1/2 xl:-translate-y-[40%] xl:right-auto xl:left-30 flex flex-col gap-2 xl:gap-4 z-10">
+          <div class="bg-white/10 backdrop-blur-md rounded-lg xl:rounded-xl py-2 px-3 xl:py-3 xl:px-5 border border-white/20 shadow-lg text-right xl:text-left hover:bg-white/20 transition-colors">
+            <div class="text-lg xl:text-2xl font-bold">
+              {{ articleService.totalArticles() }}
+            </div>
 
-          <!-- Stats -->
-          <div class="grid grid-cols-3 gap-4 mb-10 mt-12">
-            <div class="bg-white/10 backdrop-blur-md rounded-xl py-3">
-              <div class="text-xl font-bold">{{ articleService.totalArticles() }}</div>
-              <div class="text-xs text-blue-200">{{ langService.t('common.totalArticles') }}</div>
-            </div>
-            <div class="bg-white/10 backdrop-blur-md rounded-xl py-3">
-              <div class="text-xl font-bold">{{ genreCount() }}</div>
-              <div class="text-xs text-blue-200">{{ langService.t('article.genre') }}</div>
-            </div>
-            <div class="bg-white/10 backdrop-blur-md rounded-xl py-3">
-              <div class="text-xl font-bold">2</div>
-              <div class="text-xs text-blue-200">{{ langService.t('home.languages') }}</div>
+            <div class="text-[9px] xl:text-[11px] font-medium text-blue-200 uppercase tracking-wider">
+              {{ langService.t('common.totalArticles') }}
             </div>
           </div>
 
+          <div class="bg-white/10 backdrop-blur-md rounded-lg xl:rounded-xl py-2 px-3 xl:py-3 xl:px-5 border border-white/20 shadow-lg text-right xl:text-left hover:bg-white/20 transition-colors">
+            <div class="text-lg xl:text-2xl font-bold">
+              {{ genreCount() }}
+            </div>
+
+            <div class="text-[9px] xl:text-[11px] font-medium text-blue-200 uppercase tracking-wider">
+              {{ langService.t('article.genre') }}
+            </div>
+          </div>
+
+          <div class="bg-white/10 backdrop-blur-md rounded-lg xl:rounded-xl py-2 px-3 xl:py-3 xl:px-5 border border-white/20 shadow-lg text-right xl:text-left hover:bg-white/20 transition-colors">
+            <div class="text-lg xl:text-2xl font-bold">2</div>
+            <div class="text-[9px] xl:text-[11px] font-medium text-blue-200 uppercase tracking-wider">
+              {{ langService.t('home.languages') }}
+            </div>
+          </div>
+
+        </div>
+
+        <div class="relative max-w-5xl mx-auto px-4 py-24 md:py-40 text-center w-full z-10">
           <!-- Two Main Buttons -->
-          <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mt-80 md:mt-60">
             <button
               (click)="toggleRandomMenu(); $event.stopPropagation()"
               class="flex items-center gap-2 px-8 py-3.5 rounded-xl
