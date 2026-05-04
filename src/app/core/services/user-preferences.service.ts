@@ -14,8 +14,7 @@ export class UserPreferencesService {
   constructor() {
     // Dark mode — apply class to <html> immediately on load
     const savedTheme = localStorage.getItem('color-theme');
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const dark = savedTheme === 'dark' || (!savedTheme && prefersDark);
+    const dark = savedTheme === 'dark';
     this.isDark.set(dark);
     document.documentElement.classList.toggle('dark', dark);
 
