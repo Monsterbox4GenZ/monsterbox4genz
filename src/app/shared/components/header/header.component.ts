@@ -187,7 +187,7 @@ import {
         >
           @for (item of navItems; track item.path) {
             <a
-              [routerLink]="['/', lang(), item.path]"
+              [routerLink]="item.path ? ['/', lang(), item.path] : ['/', lang()]"
               class="relative group transition-all duration-300"
               [class.text-transparent]="isActive(item.path)"
               [class.bg-gradient-to-r]="isActive(item.path)"
@@ -261,7 +261,7 @@ import {
         >
           @for (item of navItems; track item.path) {
             <a
-              [routerLink]="['/', lang(), item.path]"
+              [routerLink]="item.path ? ['/', lang(), item.path] : ['/', lang()]"
               (click)="closeMobileMenu()"
               class="block px-4 py-2 text-sm font-medium rounded-lg"
               [ngClass]="
